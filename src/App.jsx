@@ -1,8 +1,40 @@
 import React, { useState } from 'react';
 import { Sparkles, Zap, Shield, ArrowRight, Check, Menu, X } from 'lucide-react';
+import { supabase } from './supabaseClient';
 
 export default function SaaSLanding() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [email, setEmail] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleSignup = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+
+    try {
+      const { data, error: supabaseError } = await supabase
+        .from('signups')
+        .insert([{ email: email }]);
+
+      if (supabaseError) throw supabaseError;
+
+      setSuccess(true);
+      setEmail('');
+      setTimeout(() => {
+        setModalOpen(false);
+        setSuccess(false);
+      }, 2000);
+    } catch (err) {
+      setError('Something went wrong. Please try again.');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white">
@@ -23,7 +55,10 @@ export default function SaaSLanding() {
 
             <div className="hidden md:flex space-x-4">
               <button className="px-4 py-2 hover:text-purple-400 transition">Sign In</button>
-              <button className="px-6 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg transition">
+              <button 
+                onClick={() => setModalOpen(true)}
+                className="px-6 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg transition"
+              >
                 Get Started
               </button>
             </div>
@@ -43,13 +78,75 @@ export default function SaaSLanding() {
               <a href="#features" className="block hover:text-purple-400">Features</a>
               <a href="#pricing" className="block hover:text-purple-400">Pricing</a>
               <a href="#" className="block hover:text-purple-400">About</a>
-              <button className="w-full px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg mt-4">
+              <button 
+                onClick={() => setModalOpen(true)}
+                className="w-full px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg mt-4"
+              >
                 Get Started
               </button>
             </div>
           </div>
         )}
       </nav>
+
+      {/* Signup Modal */}
+      {modalOpen && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-slate-800 rounded-2xl border border-purple-500/20 p-8 max-w-md w-full relative">
+            <button 
+              onClick={() => setModalOpen(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-white"
+            >
+              <X className="w-6 h-6" />
+            </button>
+            
+            <h2 className="text-2xl font-bold mb-2">Start Your Free Trial</h2>
+            <p className="text-gray-400 mb-6">Enter your email to get started with VelocityAI</p>
+            
+            {success ? (
+              <div className="text-center py-8">
+                <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Check className="w-8 h-8 text-green-400" />
+                </div>
+                <p className="text-xl font-semibold text-green-400">Success!</p>
+                <p className="text-gray-400 mt-2">Check your email to continue</p>
+              </div>
+            ) : (
+              <form onSubmit={handleSignup}>
+                <div className="mb-4">
+                  <label className="block text-sm font-medium mb-2">Email Address</label>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    className="w-full px-4 py-3 bg-slate-700 border border-purple-500/20 rounded-lg focus:outline-none focus:border-purple-500 transition"
+                    placeholder="you@example.com"
+                  />
+                </div>
+                
+                {error && (
+                  <div className="mb-4 p-3 bg-red-500/20 border border-red-500/50 rounded-lg text-red-400 text-sm">
+                    {error}
+                  </div>
+                )}
+                
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full py-3 bg-purple-600 hover:bg-purple-700 rounded-lg font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {loading ? 'Processing...' : 'Start Free Trial'}
+                </button>
+                
+                <p className="text-xs text-gray-500 mt-4 text-center">
+                  No credit card required. Cancel anytime.
+                </p>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Hero Section */}
       <section className="pt-32 pb-20 px-4">
@@ -67,7 +164,10 @@ export default function SaaSLanding() {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-            <button className="px-8 py-4 bg-purple-600 hover:bg-purple-700 rounded-lg text-lg font-semibold flex items-center justify-center gap-2 transition transform hover:scale-105">
+            <button 
+              onClick={() => setModalOpen(true)}
+              className="px-8 py-4 bg-purple-600 hover:bg-purple-700 rounded-lg text-lg font-semibold flex items-center justify-center gap-2 transition transform hover:scale-105"
+            >
               Start Free Trial <ArrowRight className="w-5 h-5" />
             </button>
             <button className="px-8 py-4 bg-slate-800 hover:bg-slate-700 rounded-lg text-lg font-semibold transition">
@@ -160,7 +260,10 @@ export default function SaaSLanding() {
                   <span>Community support</span>
                 </li>
               </ul>
-              <button className="w-full py-3 bg-slate-700 hover:bg-slate-600 rounded-lg transition">
+              <button 
+                onClick={() => setModalOpen(true)}
+                className="w-full py-3 bg-slate-700 hover:bg-slate-600 rounded-lg transition"
+              >
                 Get Started
               </button>
             </div>
@@ -190,7 +293,10 @@ export default function SaaSLanding() {
                   <span>Advanced analytics</span>
                 </li>
               </ul>
-              <button className="w-full py-3 bg-purple-600 hover:bg-purple-700 rounded-lg transition">
+              <button 
+                onClick={() => setModalOpen(true)}
+                className="w-full py-3 bg-purple-600 hover:bg-purple-700 rounded-lg transition"
+              >
                 Get Started
               </button>
             </div>
@@ -230,7 +336,10 @@ export default function SaaSLanding() {
         <div className="max-w-4xl mx-auto text-center bg-gradient-to-r from-purple-600/20 to-pink-600/20 p-12 rounded-2xl border border-purple-500/20">
           <h2 className="text-4xl md:text-5xl font-bold mb-4">Ready to Build Faster?</h2>
           <p className="text-xl text-gray-300 mb-8">Join thousands of developers shipping products at lightning speed</p>
-          <button className="px-8 py-4 bg-purple-600 hover:bg-purple-700 rounded-lg text-lg font-semibold flex items-center justify-center gap-2 mx-auto transition transform hover:scale-105">
+          <button 
+            onClick={() => setModalOpen(true)}
+            className="px-8 py-4 bg-purple-600 hover:bg-purple-700 rounded-lg text-lg font-semibold flex items-center justify-center gap-2 mx-auto transition transform hover:scale-105"
+          >
             Start Free Trial <ArrowRight className="w-5 h-5" />
           </button>
         </div>
