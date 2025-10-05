@@ -170,9 +170,14 @@ export default function SaaSLanding() {
             >
               Start Free Trial <ArrowRight className="w-5 h-5" />
             </button>
-            <button className="px-8 py-4 bg-slate-800 hover:bg-slate-700 rounded-lg text-lg font-semibold transition">
-              Watch Demo
-            </button>
+            <a 
+              href="https://cal.com/clearpath88" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="px-8 py-4 bg-slate-800 hover:bg-slate-700 rounded-lg text-lg font-semibold transition inline-block"
+            >
+              Schedule Demo
+            </a>
           </div>
 
           <div className="mt-16 relative">
